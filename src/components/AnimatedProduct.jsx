@@ -10,50 +10,47 @@ export default function AnimatedProduct({ children }) {
     offset: ["start start", "end end"],
   });
 
-  // ✅ Dynamically store container height for y animation
+  // ✅ Track container height for vertical travel
   const [containerHeight, setContainerHeight] = useState(0);
+  const [viewportWidth, setViewportWidth] = useState(0);
 
   useEffect(() => {
     if (containerRef.current) {
-      const updateHeight = () => {
+      const updateMetrics = () => {
         setContainerHeight(containerRef.current.scrollHeight);
+        setViewportWidth(window.innerWidth);
       };
 
-      updateHeight(); // set on mount
-      window.addEventListener("resize", updateHeight);
-      return () => window.removeEventListener("resize", updateHeight);
+      updateMetrics();
+      window.addEventListener("resize", updateMetrics);
+      return () => window.removeEventListener("resize", updateMetrics);
     }
   }, []);
 
-  // ✅ Helper: convert percentage → pixel value based on viewport width
-  const vw = (percent) =>
-    typeof window !== "undefined"
-      ? (window.innerWidth < 1400 ? window.innerWidth : 1400 * percent) / 100
-      : 0;
+  // ✅ Helper: clamp width at 1400px max
+  const vw = (percent) => {
+    const baseWidth = Math.min(viewportWidth || 0, 1400); // cap at 1400px
+    return (baseWidth * percent) / 100;
+  };
 
-  // ✅ Use transforms (now dynamic)
+  // ✅ Scroll-based transforms
   const scale = useTransform(scrollYProgress, [0, 1], [1.2, 1]);
 
   const x = useTransform(
     scrollYProgress,
-    [0, 0.40, 0.70, 1],
-    [
-      vw(-5),  // -5% of viewport width
-      vw(30),  // 30%
-      vw(-30),
-      vw(30),
-    ]
+    [0, 0.4, 0.7, 1],
+    [vw(-5), vw(30), vw(-30), vw(30)]
   );
 
   const y = useTransform(
     scrollYProgress,
     [0, 1],
-    [0, containerHeight * 0.75] // travels 80% of total section height
+    [0, containerHeight * 0.75]
   );
 
   const rotate = useTransform(
     scrollYProgress,
-    [0, 0.40, 0.70, 1],
+    [0, 0.4, 0.7, 1],
     [-10, 15, -15, 15]
   );
 
