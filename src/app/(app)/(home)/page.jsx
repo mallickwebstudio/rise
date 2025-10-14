@@ -1,8 +1,8 @@
 import AnimatedProduct from "@/components/AnimatedProduct";
 import Feature from "./feature";
 import Hero from "./hero";
-import Temp from "./temp";
 import ProductList from "./product-list";
+import AdditionalData from "./additional-data";
 
 export default function Home() {
   return (
@@ -12,6 +12,7 @@ export default function Home() {
         <Feature />
       </AnimatedProduct>
       <ProductList />
+      <AdditionalData />
       {/* <Temp /> */}
     </>
   );

@@ -10,47 +10,51 @@ export default function AnimatedProduct({ children }) {
     offset: ["start start", "end end"],
   });
 
-  // ✅ Track container height for vertical travel
+  // ✅ Dynamically store container height for y animation
   const [containerHeight, setContainerHeight] = useState(0);
-  const [viewportWidth, setViewportWidth] = useState(0);
 
   useEffect(() => {
     if (containerRef.current) {
-      const updateMetrics = () => {
+      const updateHeight = () => {
         setContainerHeight(containerRef.current.scrollHeight);
-        setViewportWidth(window.innerWidth);
       };
 
-      updateMetrics();
-      window.addEventListener("resize", updateMetrics);
-      return () => window.removeEventListener("resize", updateMetrics);
+      updateHeight(); // set on mount
+      window.addEventListener("resize", updateHeight);
+      return () => window.removeEventListener("resize", updateHeight);
     }
   }, []);
 
-  // ✅ Helper: clamp width at 1400px max
-  const vw = (percent) => {
-    const baseWidth = Math.min(viewportWidth || 0, 1400); // cap at 1400px
-    return (baseWidth * percent) / 100;
-  };
+  // ✅ Helper: convert percentage → pixel value based on viewport width
+  const vw = (percent) =>
+    typeof window !== "undefined"
+      // ? (window.innerWidth * percent) / 100  
+      ?((window.innerWidth <= 1400 ? window.innerWidth : 1400) * percent) / 100
+      : 0;
 
-  // ✅ Scroll-based transforms
+  // ✅ Use transforms (now dynamic)
   const scale = useTransform(scrollYProgress, [0, 1], [1.2, 1]);
 
   const x = useTransform(
     scrollYProgress,
-    [0, 0.4, 0.7, 1],
-    [vw(-5), vw(30), vw(-30), vw(30)]
+    [0, 0.40, 0.70, 1],
+    [
+      vw(-5),  // -5% of viewport width
+      vw(30),  // 30%
+      vw(-30),
+      vw(30),
+    ]
   );
 
   const y = useTransform(
     scrollYProgress,
     [0, 1],
-    [0, containerHeight * 0.75]
+    [0, containerHeight * 0.75] // travels 80% of total section height
   );
 
   const rotate = useTransform(
     scrollYProgress,
-    [0, 0.4, 0.7, 1],
+    [0, 0.40, 0.70, 1],
     [-10, 15, -15, 15]
   );
 
