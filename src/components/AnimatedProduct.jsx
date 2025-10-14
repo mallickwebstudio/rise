@@ -28,7 +28,7 @@ export default function AnimatedProduct({ children }) {
   // ✅ Helper: convert percentage → pixel value based on viewport width
   const vw = (percent) =>
     typeof window !== "undefined"
-      ? (window.innerWidth * percent) / 100
+      ? (window.innerWidth < 1400 ? window.innerWidth : 1400 * percent) / 100
       : 0;
 
   // ✅ Use transforms (now dynamic)

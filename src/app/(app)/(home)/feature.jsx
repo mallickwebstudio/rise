@@ -29,7 +29,7 @@ const features = [
 export default function Feature() {
   return (
     <section
-      className="relative min-h-screen bg-background flex items-center"
+      className="relative bg-background flex items-center"
       role="region"
       aria-label="Promotional feature section with call to action"
     >
