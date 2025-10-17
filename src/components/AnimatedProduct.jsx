@@ -25,38 +25,41 @@ export default function AnimatedProduct({ children }) {
     }
   }, []);
 
-  // ✅ Helper: convert percentage → pixel value based on viewport width
+  // ✅ Helper: convert percentage → pixel value based on viewport width (clamped at 1400px)
   const vw = (percent) =>
     typeof window !== "undefined"
-      // ? (window.innerWidth * percent) / 100  
-      ?((window.innerWidth <= 1400 ? window.innerWidth : 1400) * percent) / 100
+      ? ((window.innerWidth <= 1400 ? window.innerWidth : 1400) * percent) / 100
       : 0;
+
+  // ✅ Helper: convert percentage → scroll progress value
+  const scrollPercent = (percent) => percent / 100;
+
+  // ✅ Define scroll breakpoints in % (much easier to tweak)
+  const scrollYBreakPoint = [
+    scrollPercent(0),   // start
+    scrollPercent(40),  // 40% of scroll
+    scrollPercent(70),  // 70%
+    scrollPercent(100), // end
+  ];
 
   // ✅ Use transforms (now dynamic)
   const scale = useTransform(scrollYProgress, [0, 1], [1.2, 1]);
 
-  const x = useTransform(
-    scrollYProgress,
-    [0, 0.40, 0.70, 1],
-    [
-      vw(-5),  // -5% of viewport width
-      vw(30),  // 30%
-      vw(-30),
-      vw(30),
-    ]
-  );
+  const x = useTransform(scrollYProgress, scrollYBreakPoint, [
+    vw(-5),   // -5% of viewport width
+    vw(30),   // 30%
+    vw(-30),  // -30%
+    vw(30),   // 30%
+  ]);
 
-  const y = useTransform(
-    scrollYProgress,
-    [0, 1],
-    [0, containerHeight * 0.75] // travels 80% of total section height
-  );
+  const y = useTransform(scrollYProgress, [0, 1], [0, containerHeight * 0.75]);
 
-  const rotate = useTransform(
-    scrollYProgress,
-    [0, 0.40, 0.70, 1],
-    [-10, 15, -15, 15]
-  );
+  const rotate = useTransform(scrollYProgress, scrollYBreakPoint, [
+    -10,
+    15,
+    -15,
+    15,
+  ]);
 
   return (
     <div ref={containerRef} className="relative">
